@@ -1,7 +1,6 @@
 // script.js
 
 // وەرگرتنی توخمەکانی ڕووکار (UI)
-const startBtn = document.getElementById('start-btn');
 const startScreen = document.getElementById('start-screen');
 const quizScreen = document.getElementById('quiz-screen');
 const resultScreen = document.getElementById('result-screen');
@@ -10,23 +9,18 @@ const optionsContainer = document.getElementById('options-container');
 const nextBtn = document.getElementById('next-btn');
 const prevBtn = document.getElementById('prev-btn');
 const questionCounter = document.getElementById('question-counter');
-const scoreDisplay = document.getElementById('score-display');
-const totalDisplay = document.getElementById('total-display');
 const restartBtn = document.getElementById('restart-btn');
 const questionsGrid = document.getElementById('questions-grid');
 
-// توخمەکانی نوێی زمان
-const langKuBtn = document.getElementById('lang-ku-btn');
-const langArBtn = document.getElementById('lang-ar-btn');
+// توخمەکانی زمان و سەرەتا
+const startKuBtn = document.getElementById('start-ku-btn');
+const startArBtn = document.getElementById('start-ar-btn');
 const navTitle = document.getElementById('nav-title');
 const creatorTag = document.getElementById('creator-tag');
-const startBadge = document.getElementById('start-badge');
-const startHeading = document.getElementById('start-heading');
-const startBtnText = document.getElementById('start-btn-text');
 const statusBadge = document.getElementById('status-badge');
 const prevBtnText = document.getElementById('prev-btn-text');
 const nextBtnText = document.getElementById('next-btn-text');
-const gridTitle = document.getElementById('grid-title');
+const gridTitleText = document.getElementById('grid-title-text');
 const resultHeading = document.getElementById('result-heading');
 const resultScoreText = document.getElementById('result-score-text');
 
@@ -34,125 +28,99 @@ let currentQuestionIndex = 0;
 let score = 0;
 let questions = [];
 let userAnswers = {}; // پاشەکەوتکردنی وەڵامەکانی بەکارهێنەر
-let currentLang = 'ku'; // زمانی بنچینەیی کوردییە
+let currentLang = 'ku'; // زمانی بنچینەیی
 
-// دەقەکانی ڕووکار بۆ هەردوو زمانەکە (بێ وشەی نێکسەس)
+// دەقەکانی ڕووکار بۆ هەردوو زمانەکە
 const uiTexts = {
     ku: {
-        navTitle: "تاقیکردنەوەی هاتووچۆ",
+        navTitle: "تاقیکردنەوەی شۆفێری",
         creator: "ئامادەکراوە لە لایەن: <span class='text-white font-bold'>محمد گەردی</span>",
-        badgeLoading: "بارکردنی پرسیارەکان...",
-        badgeReady: "پرسیاری هەمەجۆر",
-        heading: "سیستەمی هۆشیاری <br /><span class='text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-fuchsia-500'>شۆفێری نێودەوڵەتی</span>",
-        startBtn: "دەستپێکردن",
         statusActive: "تاقیکردنەوەی چالاک",
         prevBtn: "پرسیاری پێشوو",
         nextBtn: "پرسیاری دواتر",
-        gridTitle: "پرسیارەکان (بازدان بۆ ژمارە)",
+        gridTitle: "پرسیارەکان",
         resultHeading: "کۆتایی تاقیکردنەوە",
-        resultScore: "ئەنجامی تۆ: <span id='score-display' class='text-4xl font-bold text-cyan-400 mx-2'>0</span> لە <span id='total-display' class='text-2xl font-bold text-white'>0</span>",
-        restartBtn: "دووبارە کردنەوە",
+        restartBtn: "گەڕانەوە بۆ سەرەتا",
         qWord: "پرسیاری",
-        alertWait: "تکایە چاوەڕوانبە تا پرسیارەکان بار دەبن..."
+        fetchError: "کێشەیەک هەیە لە هێنانی پرسیارەکان. تکایە ئینتەرنێتەکەت بپشکنە."
     },
     ar: {
-        navTitle: "إختبار المرور",
+        navTitle: "اختبار القيادة",
         creator: "إعداد: <span class='text-white font-bold'>محمد كَردي</span>",
-        badgeLoading: "جاري تحميل الأسئلة...",
-        badgeReady: "سؤال متنوع",
-        heading: "نظام التوعية <br /><span class='text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-fuchsia-500'>لقيادة السيارات الدولية</span>",
-        startBtn: "ابدأ الاختبار",
-        statusActive: "الاختبار النشط",
+        statusActive: "الاختبار نشط",
         prevBtn: "السؤال السابق",
         nextBtn: "السؤال التالي",
-        gridTitle: "الأسئلة (الانتقال إلى الرقم)",
+        gridTitle: "الأسئلة",
         resultHeading: "نهاية الاختبار",
-        resultScore: "نتيجتك: <span id='score-display' class='text-4xl font-bold text-cyan-400 mx-2'>0</span> من <span id='total-display' class='text-2xl font-bold text-white'>0</span>",
-        restartBtn: "إعادة الاختبار",
+        restartBtn: "العودة للبداية",
         qWord: "السؤال",
-        alertWait: "يرجى الانتظار حتى يتم تحميل الأسئلة..."
+        fetchError: "حدث خطأ في تحميل الأسئلة. يرجى التحقق من الاتصال بالإنترنت."
     }
 };
 
 // فرمانەکانی گوێگرتن بۆ دوگمەکان
-startBtn.addEventListener('click', startQuiz);
+startKuBtn.addEventListener('click', () => startQuiz('ku'));
+startArBtn.addEventListener('click', () => startQuiz('ar'));
 nextBtn.addEventListener('click', nextQuestion);
 prevBtn.addEventListener('click', prevQuestion);
-restartBtn.addEventListener('click', restartQuiz);
-langKuBtn.addEventListener('click', () => switchLanguage('ku'));
-langArBtn.addEventListener('click', () => switchLanguage('ar'));
+restartBtn.addEventListener('click', returnToStart);
 
-// گۆڕینی زمان
-function switchLanguage(lang) {
+// فەنکشنی دەستپێکردن بەپێی زمان
+async function startQuiz(lang) {
     currentLang = lang;
     
-    // گۆڕینی ستایلی دوگمەکانی ناو نەڤبار
-    if (lang === 'ku') {
-        langKuBtn.className = "px-3 py-1.5 rounded-full transition-all bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold";
-        langArBtn.className = "px-3 py-1.5 rounded-full transition-all text-slate-400 hover:text-white";
-        document.documentElement.lang = "ckb";
-    } else {
-        langArBtn.className = "px-3 py-1.5 rounded-full transition-all bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold";
-        langKuBtn.className = "px-3 py-1.5 rounded-full transition-all text-slate-400 hover:text-white";
-        document.documentElement.lang = "ar";
-    }
-
-    // نوێکردنەوەی سەرجەم تێکستەکانی ڕووکار
+    // نوێکردنەوەی تێکستەکانی ڕووکار پێش بارکردن
     navTitle.innerText = uiTexts[lang].navTitle;
     creatorTag.innerHTML = uiTexts[lang].creator;
-    startHeading.innerHTML = uiTexts[lang].heading;
-    startBtnText.innerHTML = `${uiTexts[lang].startBtn} <i data-lucide="${lang === 'ku' ? 'arrow-left' : 'arrow-left'}" class="w-6 h-6 group-hover:-translate-x-1 transition-transform"></i>`;
     statusBadge.innerText = uiTexts[lang].statusActive;
     prevBtnText.innerText = uiTexts[lang].prevBtn;
     nextBtnText.innerText = uiTexts[lang].nextBtn;
-    gridTitle.innerHTML = `<i data-lucide="layers" class="text-cyan-400 w-5 h-5"></i> ${uiTexts[lang].gridTitle}`;
+    gridTitleText.innerText = uiTexts[lang].gridTitle;
     resultHeading.innerText = uiTexts[lang].resultHeading;
     restartBtn.innerText = uiTexts[lang].restartBtn;
+    document.documentElement.lang = lang === 'ku' ? "ckb" : "ar";
 
+    // گۆڕینی دوگمە بۆ باری 'چاوەڕێبە' کاتی بارکردن
+    const btn = lang === 'ku' ? startKuBtn : startArBtn;
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = `<span class="relative flex items-center justify-center gap-3 text-2xl font-nrt"><i data-lucide="loader-2" class="w-6 h-6 animate-spin"></i></span>`;
     lucide.createIcons();
-    
-    // دووبارە بارکردنەوەی فایلە دروستەکە بەپێی زمان
-    loadQuestionsData();
-}
 
-// بارکردنی داتای پرسیارەکان بەپێی زمانی دەستنیشانکراو
-async function loadQuestionsData() {
-    const fileName = currentLang === 'ku' ? 'questions.json' : 'questionsAR.json';
     try {
+        // دیاریکردنی ناوی فایلەکان بەپێی زمان
+        const fileName = lang === 'ku' ? 'questions.json' : 'questionsar.json';
         const response = await fetch(fileName);
+        
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        
         questions = await response.json();
         
-        // نوێکردنەوەی باجەکەی شاشەی سەرەکی
-        startBadge.innerText = `${questions.length} ${uiTexts[currentLang].badgeReady}`;
-        
-        // ئەگەر لە ناوەڕاستی کویزەکەدا بوو، گریدی ژمارەکان چاک کەرەوە
-        if (!quizScreen.classList.contains('hidden')) {
-            buildQuestionsGrid();
-            loadQuestion();
-        }
+        // سفرکردنەوەی داتاکان
+        currentQuestionIndex = 0;
+        score = 0;
+        userAnswers = {};
+
+        // گۆڕینی شاشەکان
+        startScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        quizScreen.classList.add('flex');
+
+        buildQuestionsGrid();
+        loadQuestion();
+
     } catch (error) {
         console.error("هەڵە لە بارکردنی فایلی JSON:", error);
+        alert(uiTexts[lang].fetchError);
+    } finally {
+        // گەڕاندنەوەی شێوەی دوگمەکە ئەگەر کێشەیەک هەبوو یان دوای بارکردن
+        btn.innerHTML = originalContent;
+        lucide.createIcons();
     }
 }
 
-// بارکردنی سەرەتایی لە کاتی کردنەوەی سایتەکە
-loadQuestionsData();
-
-function startQuiz() {
-    if (questions.length === 0) {
-        alert(uiTexts[currentLang].alertWait);
-        return;
-    }
-    startScreen.classList.add('hidden');
-    quizScreen.classList.remove('hidden');
-    quizScreen.classList.add('flex');
-    currentQuestionIndex = 0;
-    score = 0;
-    userAnswers = {};
-    buildQuestionsGrid();
-    loadQuestion();
-}
-
+// دروستکردنی خانەکانی بازدان
 function buildQuestionsGrid() {
     questionsGrid.innerHTML = '';
     questions.forEach((_, index) => {
@@ -185,6 +153,7 @@ function loadQuestion() {
     questionCounter.innerText = `${uiTexts[currentLang].qWord} ${currentQuestionIndex + 1} / ${questions.length}`;
     questionText.innerText = currentQuestion.q;
     
+    // شاردنەوە یان پیشاندانی دوگمەی پێشوو
     if (currentQuestionIndex === 0) {
         prevBtn.classList.add('opacity-50', 'pointer-events-none');
     } else {
@@ -201,6 +170,7 @@ function loadQuestion() {
         button.innerText = option;
         button.className = 'option-btn w-full text-right p-5 rounded-2xl glass-card border border-white/10 text-slate-200 font-nrt text-lg hover:bg-white/10 mb-3';
         
+        // نیشاندانی ڕەنگی وەڵامەکان ئەگەر پێشتر وەڵام درابێتەوە
         if (userAnswers[currentQuestionIndex] !== undefined) {
             button.classList.add('option-disabled');
             if (index === currentQuestion.a) {
@@ -236,6 +206,7 @@ function selectOption(selectedIndex, correctIndex, selectedButton) {
         selectedButton.innerHTML = `<div class="flex justify-between items-center w-full"><span>${selectedButton.innerText}</span><i data-lucide="x-circle" class="w-6 h-6 text-white"></i></div>`;
     }
     
+    // نوێکردنەوەی ڕەنگی خانەکە لە سندوقی بازدان
     const gridCell = document.getElementById(`grid-cell-${currentQuestionIndex}`);
     if (gridCell) {
         if (selectedIndex === correctIndex) {
@@ -278,18 +249,22 @@ function showResults() {
     resultScreen.classList.remove('hidden');
     resultScreen.classList.add('flex');
     
-    resultScoreText.innerHTML = `${uiTexts[currentLang].resultScore}`;
-    
-    const scoreDisp = document.getElementById('score-display');
-    const totalDisp = document.getElementById('total-display');
-    if(scoreDisp) scoreDisp.innerText = score;
-    if(totalDisp) totalDisp.innerText = questions.length;
+    // داڕشتنی تێکستی ئەنجام بەپێی زمان
+    const resultText = currentLang === 'ku'
+        ? `ئەنجامی تۆ: <span id="score-display" class="text-4xl font-bold text-cyan-400 mx-2">${score}</span> لە <span id="total-display" class="text-2xl font-bold text-white">${questions.length}</span>`
+        : `نتيجتك: <span id="score-display" class="text-4xl font-bold text-cyan-400 mx-2">${score}</span> من <span id="total-display" class="text-2xl font-bold text-white">${questions.length}</span>`;
+        
+    resultScoreText.innerHTML = resultText;
 }
 
-function restartQuiz() {
+// گەڕانەوە بۆ شاشەی سەرەکی
+function returnToStart() {
     resultScreen.classList.remove('flex');
     resultScreen.classList.add('hidden');
+    
+    startScreen.classList.remove('hidden');
+    // لەبەر ئەوەی ستایلی شاشەی سەرەکی flex ە نەک تەنها block
+    
+    questions = [];
     userAnswers = {};
-    buildQuestionsGrid();
-    startQuiz();
 }
