@@ -7,6 +7,39 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* دیزاینی تایبەت بە خانەکانی پاسکۆد */
+        .pin-input {
+            width: 3.5rem;
+            height: 4.5rem;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .pin-input:focus {
+            border-color: #00F0FF;
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        /* جووڵەی لەرزین کاتێک کۆدەکە هەڵەیە */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .shake-animation {
+            animation: shake 0.4s ease-in-out;
+            border-color: #EF4444 !important;
+            color: #EF4444 !important;
+        }
+    </style>
 </head>
 <body class="bg-[#050B14] text-slate-200 font-sans selection:bg-fuchsia-500/30 selection:text-white overflow-x-hidden antialiased">
     
@@ -18,7 +51,29 @@
         <div class="absolute inset-0 bg-[#050B14]/40 backdrop-blur-[60px] z-0"></div>
     </div>
 
-    <div class="relative z-10 flex flex-col min-h-screen">
+    <main id="auth-screen" class="relative z-50 flex flex-col items-center justify-center min-h-screen px-6">
+        <div class="glass-panel p-10 rounded-[32px] max-w-md w-full text-center shadow-[0_0_80px_-20px_rgba(138,43,226,0.3)]">
+            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-cyan-400 to-fuchsia-500 flex items-center justify-center mb-6 shadow-lg shadow-purple-500/20">
+                <i data-lucide="lock" class="w-10 h-10 text-white"></i>
+            </div>
+            
+            <h2 class="text-3xl font-bold text-white mb-2 font-nrt">سیستەمی پارێزراو</h2>
+            <p class="text-slate-400 mb-8 font-nrt">تکایە کۆدی تایبەت داخڵ بکە بۆ چوونە ژوورەوە</p>
+            
+            <div id="pin-container" class="flex justify-center gap-2 md:gap-3 mb-6 dir-ltr" dir="ltr">
+                <input type="password" maxlength="1" class="pin-input font-sans" pattern="[0-9]*" inputmode="numeric">
+                <input type="password" maxlength="1" class="pin-input font-sans" pattern="[0-9]*" inputmode="numeric">
+                <input type="password" maxlength="1" class="pin-input font-sans" pattern="[0-9]*" inputmode="numeric">
+                <input type="password" maxlength="1" class="pin-input font-sans" pattern="[0-9]*" inputmode="numeric">
+                <input type="password" maxlength="1" class="pin-input font-sans" pattern="[0-9]*" inputmode="numeric">
+                <input type="password" maxlength="1" class="pin-input font-sans" pattern="[0-9]*" inputmode="numeric">
+            </div>
+            
+            <div id="auth-error" class="h-6 text-red-400 font-nrt text-sm opacity-0 transition-opacity">کۆدەکە هەڵەیە، تکایە دووبارە هەوڵبدەرەوە!</div>
+        </div>
+    </main>
+
+    <div id="main-app" class="relative z-10 flex flex-col min-h-screen hidden">
         
         <nav class="fixed top-0 left-0 right-0 z-50 py-4 glass-panel">
             <div class="max-w-7xl mx-auto px-6 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
