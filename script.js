@@ -1,31 +1,34 @@
 // script.js
 
+// -----------------------------------------------------------
 // بەشی پاسکۆد (سیستەمی پارێزراو)
+// -----------------------------------------------------------
 const authScreen = document.getElementById('auth-screen');
 const mainApp = document.getElementById('main-app');
 const pinInputs = document.querySelectorAll('.pin-input');
 const authError = document.getElementById('auth-error');
 
-const CORRECT_PIN = "040220"; // لەبەر ئەوەی خانەکان ٦ دانەن، کۆدەکەت ٨ ژمارەیە. ئەگەر ٦ خانەت دەوێت دەبێت ٦ ژمارە بێت.
-// تێبینی: ئەگەر کۆدەکەت ڕێک 04022003 دەوێت، دەبێت لە HTMLەکە ٨ خانە دابنێیت. 
-// لێرەدا من بۆ ٦ خانەکە 040220 م داناوە (وەک نموونە بۆ ڕۆژی لەدایکبوونت).
-// گەر دەتەوێت هەر 04022003 بێت، تکایە ٨ input لە HTML زیاد بکە و لێرە 04022003 بنووسە. با لێرە 040220 بەکاربهێنین بۆ ٦ خانەکە.
+// کۆدی نهێنی وەک داوات کرد (422003)
+const CORRECT_PIN = "422003";
 
 // لۆژیکی نووسینی ژمارەکان لە خانەکاندا
 pinInputs.forEach((input, index) => {
     input.addEventListener('input', (e) => {
-        // ئەگەر ژمارەی تێدا نووسرا، بڕۆ خانەی دواتر
+        // سڕینەوەی هەموو ڕەنگە سوور و سەوزەکان کاتێک دەست دەکاتەوە بە نووسین
+        authError.style.opacity = "0";
+        pinInputs.forEach(i => {
+            i.classList.remove('shake-animation', 'pin-error', 'pin-success');
+        });
+
+        // ئەگەر ژمارەی تێدا نووسرا
         if (e.target.value.length === 1) {
+            // بڕۆ خانەی دواتر ئەگەر مابوو
             if (index < pinInputs.length - 1) {
                 pinInputs[index + 1].focus();
-            } else {
-                // ئەگەر کۆتا خانە بوو، پشکنین بکە
-                checkPin();
             }
+            // پشکنین بکە بزانە هەموو خانەکان پڕ بوونەتەوە یان نا
+            checkIfComplete();
         }
-        // سڕینەوەی نامەی هەڵە کاتێک دەست دەکاتەوە بە نووسین
-        authError.style.opacity = "0";
-        pinInputs.forEach(i => i.classList.remove('shake-animation'));
     });
 
     // گەڕانەوە بۆ دواوە بە Backspace
@@ -38,39 +41,58 @@ pinInputs.forEach((input, index) => {
     });
 });
 
-function checkPin() {
+// فەنکشنێک بۆ پشکنینی ئەوەی ئایا هەر ٦ خانەکە پڕکراونەتەوە
+function checkIfComplete() {
     let enteredPin = "";
+    let isComplete = true;
+
     pinInputs.forEach(input => {
         enteredPin += input.value;
+        if (input.value === "") {
+            isComplete = false;
+        }
     });
 
-    // بەراوردکردنی کۆدەکان. 
-    // تێبینی: تۆ 04022003 ت داوا کرد کە ٨ ژمارەیە، بەڵام HTML ٦ خانەیە. 
-    // بۆیە لێرەدا پشکنین بۆ ٦ ژمارەی یەکەم دەکەین کە 040220. 
-    // گەر پێت باشترە کۆدەکە 8 خانە بێت، تەنها 2 input ی تر بخەرە HTML.
-    if (enteredPin === "040220") { 
-        // کۆدەکە ڕاستە
-        authScreen.classList.add('hidden');
-        mainApp.classList.remove('hidden');
+    // ئەگەر هەموو خانەکان پڕ بوون، ڕاستەوخۆ پشکنین بکە
+    if (isComplete && enteredPin.length === 6) {
+        verifyPin(enteredPin);
+    }
+}
+
+// فەنکشنی پشکنینی دروستیی کۆدەکە
+function verifyPin(pin) {
+    if (pin === CORRECT_PIN) {
+        // کۆدەکە ڕاستە: خانەکان بکە بە سەوز
+        pinInputs.forEach(input => {
+            input.classList.add('pin-success');
+        });
+        
+        // پاش کەمێک وەستان (بۆ ئەوەی سەوزبوونەکە ببینێت)، لاپەڕەکە بکەرەوە
+        setTimeout(() => {
+            authScreen.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+        }, 500);
+
     } else {
-        // کۆدەکە هەڵەیە
+        // کۆدەکە هەڵەیە: خانەکان بکە بە سوور و بیانلەرێنەوە
         authError.style.opacity = "1";
         pinInputs.forEach(input => {
-            input.classList.add('shake-animation');
+            input.classList.add('pin-error', 'shake-animation');
             // پاککردنەوەی خانەکان پاش کەمێک
             setTimeout(() => {
                 input.value = "";
-            }, 500);
+                input.classList.remove('pin-error', 'shake-animation');
+            }, 600);
         });
         // گەڕانەوەی فۆکەس بۆ خانەی یەکەم
         setTimeout(() => {
             pinInputs[0].focus();
-        }, 500);
+        }, 600);
     }
 }
 
 // -----------------------------------------------------------
-// لۆژیکی سەرەکی ئەپەکە (تاقیکردنەوەکە) لە خوارەوە وەک خۆیەتی
+// لۆژیکی سەرەکی ئەپەکە (تاقیکردنەوەکە)
 // -----------------------------------------------------------
 
 // وەرگرتنی توخمەکانی ڕووکار (UI)
@@ -336,6 +358,7 @@ function returnToStart() {
     resultScreen.classList.add('hidden');
     
     startScreen.classList.remove('hidden');
+    // لەبەر ئەوەی ستایلی شاشەی سەرەکی flex ە نەک تەنها block
     
     questions = [];
     userAnswers = {};
