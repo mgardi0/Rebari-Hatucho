@@ -8,7 +8,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* دیزاینی تایبەت بە خانەکانی پاسکۆد */
+        /* ستایلی تایبەت بە خانەکانی پاسکۆد */
         .pin-input {
             width: 3.5rem;
             height: 4.5rem;
@@ -28,6 +28,18 @@
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
             transform: translateY(-2px);
         }
+        /* کاتێک کۆدەکە هەڵەیە دەبێتە سوور */
+        .pin-error {
+            border-color: #EF4444 !important;
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: #EF4444 !important;
+        }
+        /* کاتێک کۆدەکە ڕاستە دەبێتە سەوز */
+        .pin-success {
+            border-color: #10B981 !important;
+            background: rgba(16, 185, 129, 0.1) !important;
+            color: #10B981 !important;
+        }
         /* جووڵەی لەرزین کاتێک کۆدەکە هەڵەیە */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -36,8 +48,6 @@
         }
         .shake-animation {
             animation: shake 0.4s ease-in-out;
-            border-color: #EF4444 !important;
-            color: #EF4444 !important;
         }
     </style>
 </head>
@@ -60,7 +70,7 @@
             <h2 class="text-3xl font-bold text-white mb-2 font-nrt">سیستەمی پارێزراو</h2>
             <p class="text-slate-400 mb-8 font-nrt">تکایە کۆدی تایبەت داخڵ بکە بۆ چوونە ژوورەوە</p>
             
-            <div id="pin-container" class="flex justify-center gap-2 md:gap-3 mb-6 dir-ltr" dir="ltr">
+            <div id="pin-container" class="flex justify-center gap-2 md:gap-3 mb-6" dir="ltr">
                 <input type="password" maxlength="1" class="pin-input font-sans" pattern="[0-9]*" inputmode="numeric">
                 <input type="password" maxlength="1" class="pin-input font-sans" pattern="[0-9]*" inputmode="numeric">
                 <input type="password" maxlength="1" class="pin-input font-sans" pattern="[0-9]*" inputmode="numeric">
