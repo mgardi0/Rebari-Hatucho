@@ -1,5 +1,78 @@
 // script.js
 
+// بەشی پاسکۆد (سیستەمی پارێزراو)
+const authScreen = document.getElementById('auth-screen');
+const mainApp = document.getElementById('main-app');
+const pinInputs = document.querySelectorAll('.pin-input');
+const authError = document.getElementById('auth-error');
+
+const CORRECT_PIN = "040220"; // لەبەر ئەوەی خانەکان ٦ دانەن، کۆدەکەت ٨ ژمارەیە. ئەگەر ٦ خانەت دەوێت دەبێت ٦ ژمارە بێت.
+// تێبینی: ئەگەر کۆدەکەت ڕێک 04022003 دەوێت، دەبێت لە HTMLەکە ٨ خانە دابنێیت. 
+// لێرەدا من بۆ ٦ خانەکە 040220 م داناوە (وەک نموونە بۆ ڕۆژی لەدایکبوونت).
+// گەر دەتەوێت هەر 04022003 بێت، تکایە ٨ input لە HTML زیاد بکە و لێرە 04022003 بنووسە. با لێرە 040220 بەکاربهێنین بۆ ٦ خانەکە.
+
+// لۆژیکی نووسینی ژمارەکان لە خانەکاندا
+pinInputs.forEach((input, index) => {
+    input.addEventListener('input', (e) => {
+        // ئەگەر ژمارەی تێدا نووسرا، بڕۆ خانەی دواتر
+        if (e.target.value.length === 1) {
+            if (index < pinInputs.length - 1) {
+                pinInputs[index + 1].focus();
+            } else {
+                // ئەگەر کۆتا خانە بوو، پشکنین بکە
+                checkPin();
+            }
+        }
+        // سڕینەوەی نامەی هەڵە کاتێک دەست دەکاتەوە بە نووسین
+        authError.style.opacity = "0";
+        pinInputs.forEach(i => i.classList.remove('shake-animation'));
+    });
+
+    // گەڕانەوە بۆ دواوە بە Backspace
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && e.target.value === '') {
+            if (index > 0) {
+                pinInputs[index - 1].focus();
+            }
+        }
+    });
+});
+
+function checkPin() {
+    let enteredPin = "";
+    pinInputs.forEach(input => {
+        enteredPin += input.value;
+    });
+
+    // بەراوردکردنی کۆدەکان. 
+    // تێبینی: تۆ 04022003 ت داوا کرد کە ٨ ژمارەیە، بەڵام HTML ٦ خانەیە. 
+    // بۆیە لێرەدا پشکنین بۆ ٦ ژمارەی یەکەم دەکەین کە 040220. 
+    // گەر پێت باشترە کۆدەکە 8 خانە بێت، تەنها 2 input ی تر بخەرە HTML.
+    if (enteredPin === "040220") { 
+        // کۆدەکە ڕاستە
+        authScreen.classList.add('hidden');
+        mainApp.classList.remove('hidden');
+    } else {
+        // کۆدەکە هەڵەیە
+        authError.style.opacity = "1";
+        pinInputs.forEach(input => {
+            input.classList.add('shake-animation');
+            // پاککردنەوەی خانەکان پاش کەمێک
+            setTimeout(() => {
+                input.value = "";
+            }, 500);
+        });
+        // گەڕانەوەی فۆکەس بۆ خانەی یەکەم
+        setTimeout(() => {
+            pinInputs[0].focus();
+        }, 500);
+    }
+}
+
+// -----------------------------------------------------------
+// لۆژیکی سەرەکی ئەپەکە (تاقیکردنەوەکە) لە خوارەوە وەک خۆیەتی
+// -----------------------------------------------------------
+
 // وەرگرتنی توخمەکانی ڕووکار (UI)
 const startScreen = document.getElementById('start-screen');
 const quizScreen = document.getElementById('quiz-screen');
@@ -263,7 +336,6 @@ function returnToStart() {
     resultScreen.classList.add('hidden');
     
     startScreen.classList.remove('hidden');
-    // لەبەر ئەوەی ستایلی شاشەی سەرەکی flex ە نەک تەنها block
     
     questions = [];
     userAnswers = {};
